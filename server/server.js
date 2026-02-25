@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import connectDB from './Config/db.js';
+import connectDB from './config/db.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { apiLimiter } from './middlewares/rateLimiter.js';
 import authRoutes from './routes/authRoutes.js';
