@@ -7,6 +7,6 @@ const router = express.Router();
 router.use(protect);
 
 router.get('/dashboard', authorize('admin', 'doctor'), getDashboardStats);
-router.get('/', authorize('admin'), getReports);
+router.get('/', authorize('admin', 'doctor'), getReports);
 
 export default router;

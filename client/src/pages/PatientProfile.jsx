@@ -37,10 +37,27 @@ const PatientProfile = () => {
       >
         <h1 className="text-3xl font-bold text-gray-800">Patient Profile</h1>
         <div className="space-x-3">
-          <AddComplaintModal patientId={id} onSuccess={refetch} />
-          <AddPackageModal patientId={id} onSuccess={refetch} />
-          <AddPaymentModal patientId={id} onSuccess={refetch} />
-        </div>
+  <button
+    onClick={() => setActiveTab('complaints')}
+    className="px-4 py-2 bg-blue-600 text-white rounded-xl"
+  >
+    Add Complaint
+  </button>
+
+  <button
+    onClick={() => setActiveTab('packages')}
+    className="px-4 py-2 bg-purple-600 text-white rounded-xl"
+  >
+    Add Package
+  </button>
+
+  <button
+    onClick={() => setActiveTab('payments')}
+    className="px-4 py-2 bg-green-600 text-white rounded-xl"
+  >
+    Add Payment
+  </button>
+</div>
       </motion.div>
 
       {/* Tabs */}

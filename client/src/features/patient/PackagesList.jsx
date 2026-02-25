@@ -6,6 +6,7 @@ import { FiChevronDown, FiChevronUp, FiSave } from 'react-icons/fi';
 import API from '../../store/authStore';
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
+import AddPackageModal from './AddPackageModal';
 
 const fetchPackages = async (patientId) => {
   const { data } = await API.get(`/packages/patient/${patientId}`);
@@ -21,6 +22,7 @@ const PackagesList = ({ patientId }) => {
   const [expandedPackage, setExpandedPackage] = useState(null);
   const [treatmentsData, setTreatmentsData] = useState({});
   const [editingTreatments, setEditingTreatments] = useState({});
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: packages, isLoading } = useQuery({
@@ -97,6 +99,16 @@ const PackagesList = ({ patientId }) => {
   if (isLoading) return <div>Loading packages...</div>;
 
   return (
+    <>
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-xl font-semibold">Package History</h2>
+      <button
+        onClick={() => setIsAddModalOpen(true)}
+        className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+      >
+        + Add Package
+      </button>
+    </div>
     <div className="space-y-4">
       {packages?.map((pkg) => (
         <div key={pkg._id} className="bg-white/70 backdrop-blur-sm rounded-xl border border-gray-200 overflow-hidden">
@@ -204,6 +216,17 @@ const PackagesList = ({ patientId }) => {
         </div>
       ))}
     </div>
+    {isAddModalOpen && (
+        <AddPackageModal
+          patientId={patientId}
+          onClose={() => setIsAddModalOpen(false)}
+          onSuccess={() => {
+            queryClient.invalidateQueries(['packages', patientId]);
+            setIsAddModalOpen(false);
+          }}
+        />
+      )}
+    </>
   );
 };
 
