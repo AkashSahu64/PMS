@@ -30,7 +30,8 @@ export const createPackage = async (req, res) => {
       days.push({
         package: pkg._id,
         dayNumber: i,
-        date: new Date(Date.now() + (i - 1) * 24 * 60 * 60 * 1000) // consecutive days
+        date: new Date(Date.now() + (i - 1) * 24 * 60 * 60 * 1000), // consecutive days
+        attended: false
       });
     }
     await DayTreatment.insertMany(days);

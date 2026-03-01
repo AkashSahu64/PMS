@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import API from '../store/authStore';
-import PatientDetails from '../features/patient/PatientDetails';
-import ComplaintsList from '../features/patient/ComplaintsList';
-import PackagesList from '../features/patient/PackagesList';
-import PaymentsList from '../features/patient/PaymentsList';
-import AddComplaintModal from '../features/patient/AddComplaintModal';
-import AddPackageModal from '../features/patient/AddPackageModal';
-import AddPaymentModal from '../features/patient/AddPaymentModal';
-import LoadingSkeleton from '../components/LoadingSkeleton';
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+import API from "../store/authStore";
+import PatientDetails from "../features/patient/PatientDetails";
+import ComplaintsList from "../features/patient/ComplaintsList";
+import PackagesList from "../features/patient/PackagesList";
+import PaymentsList from "../features/patient/PaymentsList";
+import AddComplaintModal from "../features/patient/AddComplaintModal";
+import AddPackageModal from "../features/patient/AddPackageModal";
+import AddPaymentModal from "../features/patient/AddPaymentModal";
+import LoadingSkeleton from "../components/LoadingSkeleton";
 
 const fetchPatient = async (id) => {
   const { data } = await API.get(`/patients/${id}`);
@@ -19,9 +19,14 @@ const fetchPatient = async (id) => {
 
 const PatientProfile = () => {
   const { id } = useParams();
-  const [activeTab, setActiveTab] = useState('details');
-  const { data: patient, isLoading, error, refetch } = useQuery({
-    queryKey: ['patient', id],
+  const [activeTab, setActiveTab] = useState("details");
+  const {
+    data: patient,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["patient", id],
     queryFn: () => fetchPatient(id),
   });
 
@@ -37,39 +42,39 @@ const PatientProfile = () => {
       >
         <h1 className="text-3xl font-bold text-gray-800">Patient Profile</h1>
         <div className="space-x-3">
-  <button
-    onClick={() => setActiveTab('complaints')}
-    className="px-4 py-2 bg-blue-600 text-white rounded-xl"
-  >
-    Add Complaint
-  </button>
+          <button
+            onClick={() => setActiveTab("complaints")}
+            className="px-4 py-2 bg-blue-600 text-white rounded-xl"
+          >
+            Add Complaint
+          </button>
 
-  <button
-    onClick={() => setActiveTab('packages')}
-    className="px-4 py-2 bg-purple-600 text-white rounded-xl"
-  >
-    Add Package
-  </button>
+          <button
+            onClick={() => setActiveTab("packages")}
+            className="px-4 py-2 bg-purple-600 text-white rounded-xl"
+          >
+            Add Package
+          </button>
 
-  <button
-    onClick={() => setActiveTab('payments')}
-    className="px-4 py-2 bg-green-600 text-white rounded-xl"
-  >
-    Add Payment
-  </button>
-</div>
+          <button
+            onClick={() => setActiveTab("payments")}
+            className="px-4 py-2 bg-green-600 text-white rounded-xl"
+          >
+            Add Payment
+          </button>
+        </div>
       </motion.div>
 
       {/* Tabs */}
       <div className="flex border-b border-gray-200">
-        {['details', 'complaints', 'packages', 'payments'].map((tab) => (
+        {["details", "complaints", "packages", "payments"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 font-medium capitalize ${
               activeTab === tab
-                ? 'text-primary-600 border-b-2 border-primary-600'
-                : 'text-gray-500 hover:text-gray-700'
+                ? "text-primary-600 border-b-2 border-primary-600"
+                : "text-gray-500 hover:text-gray-700"
             }`}
           >
             {tab}
@@ -79,10 +84,10 @@ const PatientProfile = () => {
 
       {/* Tab Content */}
       <div className="mt-6">
-        {activeTab === 'details' && <PatientDetails patient={patient} />}
-        {activeTab === 'complaints' && <ComplaintsList patientId={id} />}
-        {activeTab === 'packages' && <PackagesList patientId={id} />}
-        {activeTab === 'payments' && <PaymentsList patientId={id} />}
+        {activeTab === "details" && <PatientDetails patient={patient} />}
+        {activeTab === "complaints" && <ComplaintsList patientId={id} />}
+        {activeTab === "packages" && <PackagesList patientId={id} />}
+        {activeTab === "payments" && <PaymentsList patientId={id} />}
       </div>
     </div>
   );

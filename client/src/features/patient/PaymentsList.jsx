@@ -19,13 +19,26 @@ const PaymentsList = ({ patientId }) => {
   });
 
   const handleDownloadReceipt = async (receiptNo) => {
-    try {
-      // Assuming backend serves receipt PDF at /api/payments/receipt/:receiptNo
-      window.open(`${API.defaults.baseURL}/payments/receipt/${receiptNo}`, '_blank');
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  try {
+    const response = await API.get(
+      `/payments/receipt/${receiptNo}`,
+      { responseType: 'blob' }
+    );
+
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `receipt_${receiptNo}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   if (isLoading) return <div className="text-center py-8">Loading payment history...</div>;
   if (error) return <div className="text-center py-8 text-red-500">Error loading payments</div>;

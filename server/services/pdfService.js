@@ -3,9 +3,21 @@ import fs from 'fs';
 import path from 'path';
 
 export const generateReceiptPDF = async (receiptData) => {
+  const uploadsDir = path.join(process.cwd(), 'uploads');
+
+  // ✅ Create uploads folder if not exists
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+
+  const filePath = path.join(
+    uploadsDir,
+    `receipt_${receiptData.receiptNo}.pdf`
+  );
+
   const doc = new PDFDocument();
-  const filePath = path.join('uploads', `receipt_${receiptData.receiptNo}.pdf`);
   const stream = fs.createWriteStream(filePath);
+
   doc.pipe(stream);
 
   doc.fontSize(20).text('Physio Clinic', { align: 'center' });

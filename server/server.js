@@ -17,6 +17,7 @@ import notificationRoutes from './routes/notificationRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import activityLogRoutes from './routes/activityLogRoutes.js';
 import appointmentRoutes from './routes/appointmentRoutes.js';
+import path from 'path';
 
 dotenv.config();
 connectDB();
@@ -41,6 +42,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/activitylogs', activityLogRoutes);
 app.use('/api/appointments', appointmentRoutes);
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Error Handler
 app.use(errorHandler);

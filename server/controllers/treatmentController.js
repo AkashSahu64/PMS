@@ -18,43 +18,67 @@ export const getTreatmentsByPackage = async (req, res) => {
 export const updateTreatment = async (req, res) => {
   try {
     const treatment = await DayTreatment.findById(req.params.id);
-    if (!treatment) return res.status(404).json({ message: 'Treatment day not found' });
-
-    // Update fields
-    treatment.medicines = req.body.medicines || treatment.medicines;
-    treatment.exercises = req.body.exercises || treatment.exercises;
-    treatment.equipment = req.body.equipment || treatment.equipment;
-    treatment.notes = req.body.notes || treatment.notes;
-    treatment.attended = req.body.attended !== undefined ? req.body.attended : treatment.attended;
-    treatment.completedBy = req.user._id;
-    await treatment.save();
-
-    // Update package completedDays count if attended is true and day was not previously attended
-    if (req.body.attended === true && !treatment.attended) {
-      const pkg = await Package.findById(treatment.package);
-      pkg.completedDays += 1;
-      if (pkg.completedDays === pkg.totalDays) {
-        pkg.status = 'completed';
-        pkg.endDate = Date.now();
-      }
-      await pkg.save();
-    } else if (req.body.attended === false && treatment.attended) {
-      // If marking unattended, decrement
-      const pkg = await Package.findById(treatment.package);
-      pkg.completedDays -= 1;
-      pkg.status = 'active';
-      await pkg.save();
+    if (!treatment) {
+      return res.status(404).json({ message: 'Treatment day not found' });
     }
 
-    await ActivityLog.create({
-      user: req.user._id,
-      action: 'UPDATE_TREATMENT',
-      entity: 'DayTreatment',
-      entityId: treatment._id,
-      details: req.body
+    // 👇 OLD attended value store karo
+    const previousAttended = treatment.attended;
+
+    // Update fields safely
+    if (req.body.medicines !== undefined)
+      treatment.medicines = req.body.medicines;
+
+    if (req.body.exercises !== undefined)
+      treatment.exercises = req.body.exercises;
+
+    if (req.body.equipment !== undefined)
+      treatment.equipment = req.body.equipment;
+
+    if (req.body.notes !== undefined)
+      treatment.notes = req.body.notes;
+
+    if (req.body.date !== undefined)
+      treatment.date = req.body.date;
+
+    if (req.body.attended !== undefined)
+      treatment.attended = req.body.attended;
+
+    treatment.completedBy = req.user._id;
+
+    await treatment.save();
+
+    // 👇 PACKAGE UPDATE LOGIC
+    const pkg = await Package.findById(treatment.package);
+
+    const completedCount = await DayTreatment.countDocuments({
+      package: pkg._id,
+      attended: true
     });
 
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const missedCount = await DayTreatment.countDocuments({
+      package: pkg._id,
+      attended: false,
+      date: { $lt: today }
+    });
+
+    pkg.completedDays = completedCount;
+
+    if (completedCount === pkg.totalDays) {
+      pkg.status = "completed";
+      pkg.endDate = Date.now();
+    } else {
+      pkg.status = "active";
+      pkg.endDate = null;
+    }
+
+    await pkg.save();
+
     res.json(treatment);
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

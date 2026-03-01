@@ -80,32 +80,59 @@ endOfTomorrow.setHours(23, 59, 59, 999);
 export const getReports = async (req, res) => {
   try {
     const { startDate, endDate, type } = req.query;
-    const filter = {};
+
+    let dateFilter = {};
+
     if (startDate && endDate) {
-  filter.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
-}
+      dateFilter = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
+    }
 
     if (type === 'patients') {
-      const patients = await Patient.find(filter).count();
-      res.json({ count: patients });
-    } else if (type === 'payments') {
+      const count = await Patient.countDocuments({
+        isDeleted: false,
+        ...(startDate && endDate && { createdAt: dateFilter })
+      });
+
+      return res.json({ count });
+    }
+
+    if (type === 'packages') {
+      const total = await Package.countDocuments({
+        ...(startDate && endDate && { createdAt: dateFilter })
+      });
+
+      const completed = await Package.countDocuments({
+        status: 'completed',
+        ...(startDate && endDate && { createdAt: dateFilter })
+      });
+
+      return res.json({ total, completed });
+    }
+
+    if (type === 'payments') {
       const payments = await Payment.aggregate([
-        { $match: filter },
-        { $group: {
+        ...(startDate && endDate ? [{
+          $match: {
+            date: dateFilter
+          }
+        }] : []),
+        {
+          $group: {
             _id: null,
             total: { $sum: '$amount' },
             count: { $sum: 1 }
           }
         }
       ]);
-      res.json(payments[0] || { total: 0, count: 0 });
-    } else if (type === 'packages') {
-      const packages = await Package.find(filter).count();
-      const completed = await Package.find({ ...filter, status: 'completed' }).count();
-      res.json({ total: packages, completed });
-    } else {
-      res.status(400).json({ message: 'Invalid report type' });
+
+      return res.json(payments[0] || { total: 0, count: 0 });
     }
+
+    res.status(400).json({ message: 'Invalid report type' });
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
